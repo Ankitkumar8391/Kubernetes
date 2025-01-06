@@ -1,0 +1,54 @@
+Create an EC2 instance MiniKube, AMI - Ubuntu(Free tier eligible) , Architecture - 64bit, Instance type- t2.Medium(2vGPU) is mandatory, 
+key-value(Creat a new pair) .pem for linux , VPC enable everything use public-1a and open ssh 22 port number and http anywhere.  
+
+Now, go to your Downloads folder or where you have downloaded your pem file and change‬
+‭the permission by running the command ‘chmod 400 <Pem filename>
+
+Ankits-MacBook-Air:Downloads ankit$ ssh -i "Minikube-Day04.pem" ubuntu@ec2-44-210-93-104.compute-1.amazonaws.com
+ubuntu@ip-10-0-5-65:~$ sudo apt update -y && sudo apt upgrade -y
+ubuntu@ip-10-0-5-65:~$ sudo reboot
+
+Ankits-MacBook-Air:Downloads ankit$ ssh -i "Minikube-Day04.pem" ubuntu@ec2-44-210-93-104.compute-1.amazonaws.com
+ubuntu@ip-10-0-5-65:~$ sudo apt install docker.io
+ubuntu@ip-10-0-5-65:~$ sudo usermod -aG docker $USER && newgrp docker
+ubuntu@ip-10-0-5-65:~$ sudo apt install -y curl wget apt-transport-https
+ubuntu@ip-10-0-5-65:~$ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+ubuntu@ip-10-0-5-65:~$ sudo install minikube-linux-amd64 /usr/local/bin/minikube
+ubuntu@ip-10-0-5-65:~$ minikube version
+
+ubuntu@ip-10-0-5-65:~$ curl -sLO https://storage.googleapis.com/kubernetes-release/release/v1.15.2/bin/linux/amd64/kubectl
+ubuntu@ip-10-0-5-65:~$ chmod a+x kubectl
+ubuntu@ip-10-0-5-65:~$ sudo mv kubectl /usr/local/bin
+ubuntu@ip-10-0-5-65:~$ kubectl version
+ubuntu@ip-10-0-5-65:~$ minikube start - vm-driver=docker
+ubuntu@ip-10-0-5-65:~$ minikube status
+
+ubuntu@ip-10-0-5-65:~$ kubectl get nodes
+NAME       STATUS   ROLES           AGE    VERSION
+minikube   Ready    control-plane   7m2s   v1.31.0
+ubuntu@ip-10-0-5-65:~$ vi first.yml
+ubuntu@ip-10-0-5-65:~$ cat first.yml
+kind: Pod
+apiVersion: v1
+metadata:
+  name: testpod
+spec:
+  containers:
+    -name: container1
+     image: ubuntu
+     command: ["/bin/bash","-c","while true; do echo Hello-Kubernetes; sleep 5 ; done"]
+    -name: container2
+     image: ubuntu
+     command: ["/bin/bash","-c","while true; do echo Second container is still Running; sleep 3 ; done"]
+restartPolicy: Never
+
+ubuntu@ip-10-0-5-65:~$ kubectl apply -f first.yml
+ubuntu@ip-10-0-5-65:~$ kubectl logs -f testpod container1
+
+ubuntu@ip-10-0-5-65:~$ kubectl get pod
+NAME      READY   STATUS    RESTARTS   AGE
+testpod   2/2     Running   0          14s
+
+ubuntu@ip-10-0-5-65:~$ kubectl delete pod testpod
+pod "testpod" deleted
+
